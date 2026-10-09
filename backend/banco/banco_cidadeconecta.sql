@@ -97,22 +97,25 @@ create table confirmacoes (
 );
 
 insert into secretarias (nome, sigla) values
-  ('Secretaria Municipal de Obras', 'SEMOB'),
-  ('Secretaria Municipal de Iluminação Pública', 'SEMIP'),
-  ('Secretaria Municipal de Meio Ambiente', 'SEMA');
+  ('Obras e Infraestrutura', 'SEMOB'),
+  ('Serviços Urbanos', 'SEMSU'),
+  ('SAAE Saneamento', 'SAAE');
 
 insert into categorias (nome, icone, prazo_padrao_dias, secretaria_id) values
-  ('Buraco na via', 'cone-striped', 10, (select id from secretarias where sigla = 'SEMOB')),
-  ('Iluminação pública', 'lightbulb', 5, (select id from secretarias where sigla = 'SEMIP')),
-  ('Lixo e entulho', 'trash', 7, (select id from secretarias where sigla = 'SEMA')),
-  ('Árvore caída ou risco', 'tree', 3, (select id from secretarias where sigla = 'SEMA')),
-  ('Esgoto a céu aberto', 'droplet', 5, (select id from secretarias where sigla = 'SEMOB')),
-  ('Sinalização de trânsito', 'sign-stop', 10, (select id from secretarias where sigla = 'SEMOB'));
+  ('Vias e Pavimentação', 'via', 3, (select id from secretarias where sigla = 'SEMOB')),
+  ('Iluminação Pública', 'luz', 5, (select id from secretarias where sigla = 'SEMSU')),
+  ('Limpeza Urbana', 'lixo', 2, (select id from secretarias where sigla = 'SEMSU')),
+  ('Saneamento Básico', 'agua', 3, (select id from secretarias where sigla = 'SAAE')),
+  ('Obras e Infraestrutura', 'obra', 10, (select id from secretarias where sigla = 'SEMOB')),
+  ('Meio Ambiente', 'arvore', 7, (select id from secretarias where sigla = 'SEMSU'));
 
 insert into equipes_campo (nome, telefone, secretaria_id) values
-  ('Equipe Tapa-Buracos 1', '(69) 3416-0001', (select id from secretarias where sigla = 'SEMOB')),
-  ('Equipe de Iluminação 1', '(69) 3416-0002', (select id from secretarias where sigla = 'SEMIP')),
-  ('Equipe de Limpeza 1', '(69) 3416-0003', (select id from secretarias where sigla = 'SEMA'));
+  ('Equipe de Pavimentação A', '(69) 3416-0001', (select id from secretarias where sigla = 'SEMOB')),
+  ('Equipe de Pavimentação B', '(69) 3416-0002', (select id from secretarias where sigla = 'SEMOB')),
+  ('Equipe Elétrica', '(69) 3416-0003', (select id from secretarias where sigla = 'SEMSU')),
+  ('Coleta A', '(69) 3416-0004', (select id from secretarias where sigla = 'SEMSU')),
+  ('SAAE 1', '(69) 3416-0005', (select id from secretarias where sigla = 'SAAE')),
+  ('SAAE 2', '(69) 3416-0006', (select id from secretarias where sigla = 'SAAE'));
 
 insert into administradores (nome, email, senha, secretaria_id) values (
   'Administrador Teste',
