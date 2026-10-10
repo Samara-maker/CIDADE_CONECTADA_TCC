@@ -46,16 +46,6 @@ create table equipes_campo (
   secretaria_id uuid references secretarias(id)
 );
 
-create table enderecos (
-  id uuid primary key default gen_random_uuid(),
-  logradouro varchar(200) not null,
-  numero varchar(20),
-  bairro varchar(100),
-  cidade varchar(100) not null default 'Ji-Paraná',
-  latitude decimal(10,7) not null,
-  longitude decimal(10,7) not null
-);
-
 create table ocorrencias (
   id uuid primary key default gen_random_uuid(),
   protocolo varchar(30) not null unique,
@@ -66,7 +56,9 @@ create table ocorrencias (
   prazo_sla date not null,
   cidadao_id uuid references cidadaos(id),
   categoria_id uuid references categorias(id),
-  endereco_id uuid unique references enderecos(id),
+  endereco varchar(250) not null,
+  latitude decimal(10,7) not null,
+  longitude decimal(10,7) not null,
   equipe_campo_id uuid references equipes_campo(id),
   criado_em timestamp not null default now()
 );
@@ -94,6 +86,20 @@ create table confirmacoes (
   cidadao_id uuid references cidadaos(id),
   data timestamp not null default now(),
   unique (ocorrencia_id, cidadao_id)
+);
+
+create table avaliacoes (
+  id uuid primary key default gen_random_uuid(),
+  ocorrencia_id uuid not null unique references ocorrencias(id),
+  cidadao_id uuid not null references cidadaos(id),
+  nota int not null check (nota between 1 and 4),
+  comentario text,
+  criado_em timestamp not null default now()
+);
+
+create table configuracoes (
+  chave varchar(60) primary key,
+  valor varchar(255) not null
 );
 
 insert into secretarias (nome, sigla) values
