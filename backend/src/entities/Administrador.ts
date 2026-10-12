@@ -14,8 +14,9 @@ export class Administrador {
   @Column({ unique: true, length: 150 })
   email!: string;
 
-  @Column()
-  senha!: string;
+  // Fica vazia para administradores que entram apenas pelo Google
+  @Column({ type: "varchar", nullable: true })
+  senha!: string | null;
 
   @Column({ default: true })
   ativo!: boolean;
