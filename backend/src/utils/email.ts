@@ -21,18 +21,22 @@ export async function enviarEmailMudancaStatus(
   destinatario: string,
   protocolo: string,
   statusAnterior: string,
-  statusNovo: string
+  statusNovo: string,
+  mensagem?: string
 ): Promise<void> {
   console.log(`[E-MAIL] Para: ${destinatario}`);
   console.log(`[E-MAIL] Assunto: Atualização da ocorrência ${protocolo}`);
   console.log(`[E-MAIL] Status alterado de "${statusAnterior}" para "${statusNovo}".`);
+  if (mensagem) {
+    console.log(`[E-MAIL] Mensagem da prefeitura: ${mensagem}`);
+  }
 }
 
 export async function enviarEmailRecuperacaoSenha(
   destinatario: string,
-  token: string
+  link: string
 ): Promise<void> {
   console.log(`[E-MAIL] Para: ${destinatario}`);
   console.log(`[E-MAIL] Assunto: Recuperação de senha`);
-  console.log(`[E-MAIL] Use o código abaixo para redefinir sua senha: ${token}`);
+  console.log(`[E-MAIL] Use o link abaixo para redefinir sua senha (vale por 30 minutos): ${link}`);
 }
