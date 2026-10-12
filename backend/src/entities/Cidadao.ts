@@ -13,8 +13,12 @@ export class Cidadao {
   @Column({ unique: true, length: 150 })
   email!: string;
 
-  @Column()
-  senha!: string;
+  // Fica vazia para quem entra apenas pelo Google
+  @Column({ type: "varchar", nullable: true })
+  senha!: string | null;
+
+  @Column({ type: "varchar", length: 50, nullable: true, unique: true })
+  google_id!: string | null;
 
   @Column({ length: 20, nullable: true })
   telefone!: string;
