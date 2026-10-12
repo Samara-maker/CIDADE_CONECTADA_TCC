@@ -5,11 +5,12 @@ import { Administrador } from "../entities/Administrador";
 import { Categoria } from "../entities/Categoria";
 import { Secretaria } from "../entities/Secretaria";
 import { EquipeCampo } from "../entities/EquipeCampo";
-import { Endereco } from "../entities/Endereco";
 import { Ocorrencia } from "../entities/Ocorrencia";
 import { HistoricoStatus } from "../entities/HistoricoStatus";
 import { ObservacaoInterna } from "../entities/ObservacaoInterna";
 import { Confirmacao } from "../entities/Confirmacao";
+import { Avaliacao } from "../entities/Avaliacao";
+import { Configuracao } from "../entities/Configuracao";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -26,10 +27,11 @@ export const AppDataSource = new DataSource({
     Categoria,
     Secretaria,
     EquipeCampo,
-    Endereco,
     Ocorrencia,
     HistoricoStatus,
     ObservacaoInterna,
     Confirmacao,
+    Avaliacao,
+    Configuracao,
   ],
 });
