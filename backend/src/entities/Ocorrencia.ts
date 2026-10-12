@@ -10,7 +10,6 @@ import {
 } from "typeorm";
 import { Cidadao } from "./Cidadao";
 import { Categoria } from "./Categoria";
-import { Endereco } from "./Endereco";
 import { EquipeCampo } from "./EquipeCampo";
 import { HistoricoStatus } from "./HistoricoStatus";
 import { ObservacaoInterna } from "./ObservacaoInterna";
@@ -57,9 +56,14 @@ export class Ocorrencia {
   @JoinColumn({ name: "categoria_id" })
   categoria!: Categoria;
 
-  @OneToOne(() => Endereco, (endereco) => endereco.ocorrencia, { cascade: true })
-  @JoinColumn({ name: "endereco_id" })
-  endereco!: Endereco;
+  @Column({ length: 250 })
+  endereco!: string;
+
+  @Column({ type: "decimal", precision: 10, scale: 7 })
+  latitude!: number;
+
+  @Column({ type: "decimal", precision: 10, scale: 7 })
+  longitude!: number;
 
   @ManyToOne(() => EquipeCampo, (equipe) => equipe.ocorrencias, { nullable: true })
   @JoinColumn({ name: "equipe_campo_id" })
