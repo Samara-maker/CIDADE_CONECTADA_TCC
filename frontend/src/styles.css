@@ -426,6 +426,10 @@ button { font-family: inherit; cursor: pointer; }
   .cc-conteudo, .cc-detalhe, .cc-faixa { padding-left: 18px; padding-right: 18px; }
   .cc-etapas { gap: 18px; } .cc-etapa { font-size: 18px; }
 }
+/* Em telas estreitas o nome sai da barra para não ficar por cima dos ícones do menu */
+@media (max-width: 760px) {
+  .cc-top .cc-logo-texto { display: none; }
+}
 @media (max-width: 560px) {
   .cc-top { padding: 0 12px; }
   .cc-top .cc-btn span { display: none; }

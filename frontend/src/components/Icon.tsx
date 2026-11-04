@@ -174,7 +174,7 @@ export function Logo({ pequeno = false }: { pequeno?: boolean }) {
       <span className="cc-logo-icon">
         <LogoPin />
       </span>
-      <span>
+      <span className="cc-logo-texto">
         Cidade <em>Conectada</em>
       </span>
     </span>
