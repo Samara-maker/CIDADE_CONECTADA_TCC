@@ -4,7 +4,8 @@ import api from "../services/api";
 import CitizenLayout from "../components/CitizenLayout";
 import Icon, { Logo } from "../components/Icon";
 import { Categoria } from "../utils/tipos";
-import { corCategoria, formatarData, ordenarCategorias, mensagemErro, protocoloCurto } from "../utils/format";
+import Selo from "../components/Selo";
+import { corCategoria, formatarData, ordenarCategorias, mensagemErro, protocoloCurto, tituloOcorrencia } from "../utils/format";
 
 interface Jurisdicao {
   competencia: "municipal" | "federal";
@@ -24,7 +25,17 @@ interface Registro {
   categoria: string;
   criado_em: string;
 }
-
+interface Similar {
+  id: string;
+  protocolo: string;
+  endereco: string;
+  descricao: string;
+  status: string;
+  nivel_urgencia: string;
+  criado_em: string;
+  categoria: { nome: string };
+  confirmacoes_total: number;
+}
 const PASSOS = ["Categoria", "Localização", "Detalhes", "Revisão"];
 
 export default function NovaOcorrencia() {
@@ -39,7 +50,8 @@ export default function NovaOcorrencia() {
   const [enviando, setEnviando] = useState(false);
   const [analise, setAnalise] = useState<Jurisdicao | null>(null);
   const [registro, setRegistro] = useState<Registro | null>(null);
-
+  const [similares, setSimilares] = useState<Similar[]>([]);
+  
   useEffect(() => {
     api
       .get("/categorias")
@@ -58,6 +70,26 @@ export default function NovaOcorrencia() {
     if (!urgencia) return setErro("Escolha o nível de urgência.");
     if (descricao.trim().length < 20) return setErro("A descrição deve ter pelo menos 20 caracteres.");
 
+     setEnviando(true);
+    try {
+      // Primeiro confere se já existe uma ocorrência aberta igual naquela rua
+      const existentes = await api.post("/ocorrencias/similares", { categoria_id: categoriaId, endereco });
+
+      if (existentes.data.length > 0) {
+        setSimilares(existentes.data);
+        return;
+      }
+
+      await verificarJurisdicao();
+    } catch (erroRequisicao) {
+      setErro(mensagemErro(erroRequisicao, "Não foi possível analisar o endereço."));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  // Segunda parte da validação: análise de jurisdição do endereço
+  async function verificarJurisdicao() {
     setEnviando(true);
     try {
       const resposta = await api.post("/ocorrencias/jurisdicao", { categoria_id: categoriaId, endereco });
@@ -74,6 +106,13 @@ export default function NovaOcorrencia() {
       setEnviando(false);
     }
   }
+
+  // O cidadão viu as ocorrências parecidas e quer relatar mesmo assim
+  async function relatarMesmoAssim() {
+    setSimilares([]);
+    await verificarJurisdicao();
+  }
+  
 
   // Segunda etapa: grava a notificação
   async function enviar() {
@@ -291,6 +330,48 @@ export default function NovaOcorrencia() {
             <div className="cc-janela-acoes">
               <button className="cc-btn cc-btn-verde" style={{ minWidth: 150 }} onClick={() => setAnalise(null)}>
                 OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+       {similares.length > 0 && (
+        <div className="cc-fundo" onClick={() => setSimilares([])}>
+          <div className="cc-janela" style={{ width: 560 }} onClick={(e) => e.stopPropagation()}>
+            <div className="cc-janela-miolo">
+              <h3>Já existe uma ocorrência neste endereço</h3>
+              <p>
+                Encontramos {similares.length === 1 ? "uma ocorrência aberta" : `${similares.length} ocorrências abertas`}{" "}
+                da mesma categoria nesta rua. Se for o mesmo problema, você pode acompanhar e confirmar a que já existe,
+                o que ajuda a prefeitura a priorizar o atendimento.
+              </p>
+
+              {similares.map((item) => (
+                <div key={item.id} className="cc-similar">
+                  <div className="cc-similar-topo">
+                    <strong>{tituloOcorrencia(item)}</strong>
+                    <Selo status={item.status} urgencia={item.nivel_urgencia} />
+                  </div>
+                  <p>{item.descricao}</p>
+                  <div className="cc-similar-rodape">
+                    <span>
+                      Protocolo {protocoloCurto(item.protocolo)} · {formatarData(item.criado_em)} · {item.confirmacoes_total}{" "}
+                      {item.confirmacoes_total === 1 ? "confirmação" : "confirmações"}
+                    </span>
+                    <button type="button" className="cc-link-btn" onClick={() => navegar(`/ocorrencia/${item.id}`)}>
+                      Ver ocorrência
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="cc-janela-acoes">
+              <button className="cc-btn cc-btn-claro" onClick={() => setSimilares([])}>
+                Voltar
+              </button>
+              <button className="cc-btn cc-btn-verde" onClick={relatarMesmoAssim} disabled={enviando}>
+                {enviando ? "Enviando..." : "Relatar mesmo assim"}
               </button>
             </div>
           </div>

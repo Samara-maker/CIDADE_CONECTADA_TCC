@@ -11,6 +11,7 @@ import {
   atualizarStatus,
   adicionarObservacao,
   consultarJurisdicao,
+  buscarSimilares,
   avaliarOcorrencia,
 } from "../controllers/ocorrenciaController";
 
@@ -19,6 +20,7 @@ const router = Router();
 // Rotas do cidadão
 router.post("/", autenticarCidadao, upload.single("foto"), criarOcorrencia);
 router.get("/minhas", autenticarCidadao, listarMinhasOcorrencias);
+router.post("/similares", autenticarCidadao, buscarSimilares);
 router.post("/jurisdicao", autenticarCidadao, consultarJurisdicao);
 router.post("/:id/confirmar", autenticarCidadao, confirmarOcorrencia);
 router.post("/:id/avaliar", autenticarCidadao, avaliarOcorrencia);

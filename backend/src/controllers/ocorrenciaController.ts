@@ -120,6 +120,66 @@ export async function criarOcorrencia(req: Request, res: Response): Promise<void
     },
   });
 }
+function nomeDaVia(endereco: string): string {
+  const semAcento = endereco
+    .split(",")[0]
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[0-9.\-]/g, " ");
+
+  return semAcento
+    .split(/\s+/)
+    .filter((palavra) => palavra && !["rua", "r", "avenida", "av", "travessa", "tv", "alameda", "estrada", "rodovia", "de", "da", "do", "das", "dos"].includes(palavra))
+    .join(" ")
+    .trim();
+}
+
+// Antes de registrar, procura ocorrências abertas da mesma categoria na mesma rua
+export async function buscarSimilares(req: Request, res: Response): Promise<void> {
+  const { categoria_id, endereco } = req.body;
+
+  if (!categoria_id || !endereco) {
+    res.status(400).json({ erro: "Informe a categoria e o endereço" });
+    return;
+  }
+
+  const via = nomeDaVia(String(endereco));
+
+  if (via.length < 4) {
+    res.status(200).json([]);
+    return;
+  }
+
+  const abertas = await repositorioOcorrencia.find({
+    where: { categoria: { id: categoria_id } },
+    relations: ["categoria"],
+    order: { criado_em: "DESC" },
+  });
+
+  const similares = abertas.filter((item) => {
+    if (item.status === "concluida" || item.status === "indeferida") return false;
+    const outra = nomeDaVia(item.endereco);
+    return outra.length >= 4 && (outra === via || outra.includes(via) || via.includes(outra));
+  });
+
+  const resposta = [];
+  for (const item of similares.slice(0, 3)) {
+    resposta.push({
+      id: item.id,
+      protocolo: item.protocolo,
+      endereco: item.endereco,
+      descricao: item.descricao,
+      status: item.status,
+      nivel_urgencia: item.nivel_urgencia,
+      criado_em: item.criado_em,
+      categoria: { nome: item.categoria.nome },
+      confirmacoes_total: await repositorioConfirmacao.count({ where: { ocorrencia: { id: item.id } } }),
+    });
+  }
+
+  res.status(200).json(resposta);
+}
 
 // Mostra ao cidadão a análise de jurisdição antes de enviar a notificação
 export async function consultarJurisdicao(req: Request, res: Response): Promise<void> {

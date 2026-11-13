@@ -452,3 +452,11 @@ button { font-family: inherit; cursor: pointer; }
 .cc-form-admin small { color: #64748b; font-size: 12px; }
 .cc-link-btn { background: none; border: 0; padding: 0; color: var(--verde-700); font-weight: 600; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .cc-perfil.inativo { background: #fde8ec; color: #9b1c31; }
+
+/* Aviso de ocorrência parecida ao notificar */
+.cc-similar { border: 1px solid #dfe8e2; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; background: #f8fbf9; }
+.cc-similar-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.cc-similar-topo strong { font-size: 14px; }
+.cc-similar p { font-size: 13px; color: #4a5a50; margin: 8px 0; }
+.cc-similar-rodape { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; color: #6b7a70; flex-wrap: wrap; }
+@media (max-width: 760px) { .cc-janela-acoes { flex-wrap: wrap; } .cc-janela-acoes .cc-btn { min-width: 140px; } }
