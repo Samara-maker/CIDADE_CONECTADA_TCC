@@ -27,7 +27,7 @@ button { font-family: inherit; cursor: pointer; }
 .cc-mono { font-variant-numeric: tabular-nums; }
 
 /* ---------- topo ---------- */
-.cc-top { height: 68px; background: var(--branco); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: relative; border-bottom: 1px solid #e5ece7; z-index: 500; }
+.cc-top { height: 68px; background: var(--branco); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; border-bottom: 1px solid #e5ece7; z-index: 500; }
 .cc-logo { display: flex; align-items: center; gap: 10px; font-family: "Poppins", sans-serif; font-weight: 600; font-size: 17px; }
 .cc-logo em { font-style: normal; color: var(--verde-700); }
 .cc-logo-icon { width: 44px; height: 44px; border-radius: 10px; background: #1a6b47; display: grid; place-items: center; }
@@ -315,7 +315,7 @@ button { font-family: inherit; cursor: pointer; }
 
 /* ---------- painel administrativo ---------- */
 .cc-admin { display: grid; grid-template-columns: 254px 1fr; min-height: calc(100vh - 68px); }
-.cc-lateral { background: var(--verde-950); display: flex; flex-direction: column; border-top: 4px solid #000; position: sticky; top: 0; height: calc(100vh - 68px); align-self: start; }
+.cc-lateral { background: var(--verde-950); display: flex; flex-direction: column; border-top: 4px solid #000; position: sticky; top: 68px; height: calc(100vh - 68px); align-self: start; }
 .cc-lateral-menu { flex: 1; padding: 18px 12px; overflow-y: auto; }
 .cc-lateral-item { display: flex; align-items: center; gap: 16px; width: 100%; border: 0; background: none; color: #fff; padding: 14px 18px; font-size: 16px; font-weight: 600; text-align: left; border-radius: 8px; margin-bottom: 4px; }
 .cc-lateral-item svg { width: 30px; height: 30px; flex-shrink: 0; }
