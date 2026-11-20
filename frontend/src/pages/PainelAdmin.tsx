@@ -24,8 +24,8 @@ const MENU: { id: Secao; rotulo: string; icone: string }[] = [
   { id: "ocorrencias", rotulo: "Ocorrências", icone: "relogio" },
   { id: "triagem", rotulo: "Triagem Pendente", icone: "calendario" },
   { id: "equipes", rotulo: "Equipes de Campo", icone: "usuarios" },
-  { id: "relatorios", rotulo: "Relatórios", icone: "caixa" },
   { id: "cidadaos", rotulo: "Cidadãos", icone: "usuario" },
+  { id: "relatorios", rotulo: "Relatórios", icone: "caixa" },
   { id: "configuracoes", rotulo: "Configurações", icone: "engrenagem" },
 ];
 
