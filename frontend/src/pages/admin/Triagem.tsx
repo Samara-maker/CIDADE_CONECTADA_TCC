@@ -71,8 +71,7 @@ export default function Triagem({ ocorrencias, equipes, aoMudar }: Props) {
           return (
             <div key={o.id} className="cc-triagem-item">
               <div>
-                <b>{protocoloCurto(o.protocolo)} · {o.categoria.nome} — {o.endereco}</b>
-                <div className="meta">
+                  <b>{protocoloCurto(o.protocolo)} · {o.categoria.nome}, {o.endereco}</b>                <div className="meta">
                   Há <em>{horas}h</em> sem triagem · {rotuloUrgencia(o.nivel_urgencia)}
                 </div>
               </div>
