@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import RecuperarSenha from "./pages/RecuperarSenha";
-import RedefinirSenha from "./pages/RedefinirSenha";
 import Home from "./pages/Home";
 import NovaOcorrencia from "./pages/NovaOcorrencia";
 import Detalhe from "./pages/Detalhe";
@@ -23,7 +22,6 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-      <Route path="/redefinir-senha" element={<RedefinirSenha />} />
 
       <Route path="/" element={<Cidadao><Home /></Cidadao>} />
       <Route path="/mapa" element={<Cidadao><MapaPage /></Cidadao>} />
