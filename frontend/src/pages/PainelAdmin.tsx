@@ -23,8 +23,8 @@ const MENU: { id: Secao; rotulo: string; icone: string }[] = [
   { id: "dashboard", rotulo: "Dashboard", icone: "grade" },
   { id: "ocorrencias", rotulo: "Ocorrências", icone: "relogio" },
   { id: "triagem", rotulo: "Triagem Pendente", icone: "calendario" },
-  { id: "equipes", rotulo: "Equipes de Campo", icone: "usuarios" },
   { id: "cidadaos", rotulo: "Cidadãos", icone: "usuario" },
+  { id: "equipes", rotulo: "Equipes de Campo", icone: "usuarios" },
   { id: "relatorios", rotulo: "Relatórios", icone: "caixa" },
   { id: "configuracoes", rotulo: "Configurações", icone: "engrenagem" },
 ];
@@ -101,10 +101,11 @@ export default function PainelAdmin() {
           {secao === "dashboard" && <Dashboard resumo={resumo} ocorrencias={ocorrencias} aoAtualizar={setEditando} />}
           {secao === "ocorrencias" && <Ocorrencias ocorrencias={ocorrencias} aoAtualizar={setEditando} />}
           {secao === "triagem" && <Triagem ocorrencias={ocorrencias} equipes={equipes} aoMudar={carregar} />}
-          {secao === "equipes" && <EquipesCampo equipes={equipes} />}
-          {secao === "relatorios" && <Relatorios ocorrencias={ocorrencias} cidadaos={cidadaos} resumo={resumo} />}
           {secao === "cidadaos" && <Cidadaos cidadaos={cidadaos} />}
-          {secao === "configuracoes" && <Configuracoes ocorrencias={ocorrencias} />}
+          {secao === "equipes" && <EquipesCampo/>}
+          {secao === "relatorios" && <Relatorios />}
+          {secao === "configuracoes" && <Configuracoes />}
+
         </main>
       </div>
 
