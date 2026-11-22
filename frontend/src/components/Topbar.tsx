@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import Icon, { Logo } from "./Icon";
 import { useAuth } from "../context/AuthContext";
-import { iniciais } from "../utils/format";
 import { useInstalarApp } from "../hooks/useInstalarApp";
+import logo from "../assets/imagens/logo.png";
 
 const LINKS = [
-  { para: "/", rotulo: "Início", icone: "home", fim: true },
-  { para: "/mapa", rotulo: "Mapa", icone: "mapa", fim: false },
-  { para: "/minhas", rotulo: "Minhas notificações", icone: "sino", fim: false },
-  { para: "/painel-publico", rotulo: "Painel Público", icone: "pulso", fim: false },
+  { para: "/", rotulo: "Início", fim: true },
+  { para: "/mapa", rotulo: "Mapa", fim: false },
+  { para: "/minhas", rotulo: "Minhas notificações", fim: false },
+  { para: "/painel-publico", rotulo: "Painel Público", fim: false },
 ];
 
 interface Props {
@@ -19,6 +18,7 @@ interface Props {
 export default function Topbar({ mostrarNotificar = true }: Props) {
   const { usuario, sair } = useAuth();
   const [menuAberto, setMenuAberto] = useState(false);
+  const [navAberta, setNavAberta] = useState(false);
   const navegar = useNavigate();
   const { podeInstalar, instalar } = useInstalarApp();
 
@@ -28,42 +28,55 @@ export default function Topbar({ mostrarNotificar = true }: Props) {
   }
 
   return (
-    <header className="cc-top">
-      <Link to="/">
-        <Logo />
-      </Link>
+    <nav className="navbar navbar-expand-md navbar-light bg-white border-bottom sticky-top">
+      <div className="container">
+        <Link to="/" className="navbar-brand">
+          <img src={logo} alt="Cidade Conectada" height="36" />
+        </Link>
 
-      <nav className="cc-nav">
-        {LINKS.map((item) => (
-          <NavLink key={item.para} to={item.para} end={item.fim} className={({ isActive }) => (isActive ? "active" : "")}>
-            <Icon nome={item.icone} />
-            <span>{item.rotulo}</span>
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="cc-top-dir">
-        {mostrarNotificar && (
-          <Link to="/nova" className="cc-btn">
-            <Icon nome="mais" />
-            <span>Notificar Problema</span>
-          </Link>
-        )}
-        <button className="cc-avatar" onClick={() => setMenuAberto((aberto) => !aberto)} title="Minha conta">
-          {iniciais(usuario?.nome ?? "")}
+        <button className="navbar-toggler" type="button" onClick={() => setNavAberta((aberta) => !aberta)}>
+          <span className="navbar-toggler-icon" />
         </button>
-        {menuAberto && (
-          <div className="cc-menu">
-            <div className="cc-menu-info">
-              <strong>{usuario?.nome}</strong>
-              <br />
-              {usuario?.email}
+
+        <div className={`navbar-collapse collapse ${navAberta ? "show" : ""}`}>
+          <ul className="navbar-nav me-auto">
+            {LINKS.map((item) => (
+              <li key={item.para} className="nav-item">
+                <NavLink to={item.para} end={item.fim} className={({ isActive }) => `nav-link ${isActive ? "text-success fw-semibold" : ""}`}>
+                  {item.rotulo}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <div className="d-flex align-items-center gap-2">
+            {mostrarNotificar && (
+              <Link to="/nova" className="btn btn-success btn-sm">
+                Notificar problema
+              </Link>
+            )}
+            <div className="position-relative">
+              <button className="btn btn-outline-success btn-sm" onClick={() => setMenuAberto((aberto) => !aberto)}>
+                {usuario?.nome?.split(" ")[0] ?? "Conta"}
+              </button>
+              {menuAberto && (
+                <div className="dropdown-menu dropdown-menu-end show" data-bs-popper="end">
+                  <span className="dropdown-item-text small text-muted">{usuario?.email}</span>
+                  <div className="dropdown-divider" />
+                  {podeInstalar && (
+                    <button className="dropdown-item" onClick={instalar}>
+                      Instalar aplicativo
+                    </button>
+                  )}
+                  <button className="dropdown-item" onClick={handleSair}>
+                    Sair
+                  </button>
+                </div>
+              )}
             </div>
-            {podeInstalar && <button onClick={instalar}>Instalar aplicativo</button>}
-            <button onClick={handleSair}>Sair</button>
           </div>
-        )}
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
