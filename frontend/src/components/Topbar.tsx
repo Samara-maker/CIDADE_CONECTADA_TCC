@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useInstalarApp } from "../hooks/useInstalarApp";
-import logo from "../assets/imagens/logo.png";
+import logo from "../img/logo.png";
 
 const LINKS = [
   { para: "/", rotulo: "Início", fim: true },

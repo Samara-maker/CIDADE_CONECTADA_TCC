@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { LogoPin } from "./Icon";
-import logo from "../assets/imagens/logo.png";
-import ilustracao from "../assets/imagens/login-ilustracao.png";
+import logo from "../img/logo.png";
+import ilustracao from "../img/login-ilustracao.png";
 
 // Tela dividida do login e do cadastro: formulário de um lado, imagem do outro
 export function AuthCartao({ titulo, children }: { titulo: string; children: ReactNode }) {
