@@ -2,7 +2,7 @@ import { useState, FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { AuthDividido, CampoSenha } from "../components/AuthShell";
+import { AuthCartao, CampoSenha } from "../components/AuthShell";
 import BotaoGoogle from "../components/BotaoGoogle";
 import { mensagemErro } from "../utils/format";
 
@@ -45,57 +45,54 @@ export default function Cadastro() {
     }
   }
 
-  return (
-    <AuthDividido>
-      <h1 style={{ marginBottom: 22 }}>Cadastre-se</h1>
-
-      {erro && <div className="cc-erro">{erro}</div>}
+   return (
+    <AuthCartao titulo="Cadastre-se">
+      {erro && <div className="alert alert-danger py-2">{erro}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div className="cc-campo">
-          <label className="cc-label">Nome:</label>
-          <input
-            className="cc-input"
-            placeholder="Digite seu nome completo"
-            value={nome}
-            onChange={(evento) => setNome(evento.target.value)}
-            required
-          />
+        <div className="mb-3">
+          <label className="form-label">Nome</label>
+          <input className="form-control" value={nome} onChange={(evento) => setNome(evento.target.value)} required />
         </div>
-        <div className="cc-campo">
-          <label className="cc-label">E-mail:</label>
+        <div className="mb-3">
+          <label className="form-label">E-mail</label>
           <input
             type="email"
-            className="cc-input"
-            placeholder="example@gmail.com"
+            className="form-control"
             value={email}
             onChange={(evento) => setEmail(evento.target.value)}
             required
           />
         </div>
-        <CampoSenha rotulo="Senha:" valor={senha} aoMudar={setSenha} minimo={6} />
-        <CampoSenha rotulo="Confirme sua senha:" valor={confirmar} aoMudar={setConfirmar} minimo={6} />
+        <CampoSenha rotulo="Senha" valor={senha} aoMudar={setSenha} minimo={6} autoComplete="new-password" />
+        <CampoSenha rotulo="Confirme a senha" valor={confirmar} aoMudar={setConfirmar} minimo={6} autoComplete="new-password" />
 
-        <label className="cc-termos">
-          <input type="checkbox" checked={termos} onChange={(evento) => setTermos(evento.target.checked)} />
-          <span>
-            Concordo com os Termos e Condições <b>*</b>
-          </span>
-        </label>
+        <div className="form-check mb-3">
+          <input
+            id="termos"
+            type="checkbox"
+            className="form-check-input"
+            checked={termos}
+            onChange={(evento) => setTermos(evento.target.checked)}
+          />
+          <label htmlFor="termos" className="form-check-label">
+            Concordo com os Termos e Condições
+          </label>
+        </div>
 
-        <button type="submit" className="cc-btn cc-btn-escuro cc-btn-bloco" disabled={carregando}>
+        <button type="submit" className="btn btn-success w-100" disabled={carregando}>
           {carregando ? "Cadastrando..." : "Cadastrar"}
         </button>
       </form>
 
       <BotaoGoogle aoErro={setErro} />
 
-      <p style={{ textAlign: "center", marginTop: 22, fontSize: 16, color: "#4b5563" }}>
+      <p className="text-center mt-3 mb-0">
         Já tem conta?{" "}
-        <Link to="/login" className="cc-link">
+        <Link to="/login" className="text-success">
           Entrar
         </Link>
       </p>
-    </AuthDividido>
+    </AuthCartao>
   );
 }
