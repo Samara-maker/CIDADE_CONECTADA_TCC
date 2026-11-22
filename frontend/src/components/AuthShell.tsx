@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { LogoPin } from "./Icon";
+import Icon, { LogoPin } from "./Icon";
 import logo from "../img/logo.png";
 import ilustracao from "../img/login-ilustracao.png";
 
@@ -67,8 +67,13 @@ export function CampoSenha({
           onChange={(evento) => aoMudar(evento.target.value)}
           required
         />
-        <button type="button" className="btn btn-outline-secondary" onClick={() => setVisivel((atual) => !atual)}>
-          {visivel ? "Ocultar" : "Mostrar"}
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          aria-label={visivel ? "Ocultar senha" : "Mostrar senha"}
+          onClick={() => setVisivel((atual) => !atual)}
+        >
+          <Icon nome={visivel ? "olhoFechado" : "olho"} tamanho={18} />
         </button>
       </div>
     </div>

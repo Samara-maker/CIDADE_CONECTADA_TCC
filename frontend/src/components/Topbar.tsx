@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useInstalarApp } from "../hooks/useInstalarApp";
 import logo from "../img/logo.png";
+import { iniciais } from "../utils/format";
 
 const LINKS = [
   { para: "/", rotulo: "Início", fim: true },
@@ -39,7 +40,7 @@ export default function Topbar({ mostrarNotificar = true }: Props) {
         </button>
 
         <div className={`navbar-collapse collapse ${navAberta ? "show" : ""}`}>
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav mx-auto">
             {LINKS.map((item) => (
               <li key={item.para} className="nav-item">
                 <NavLink to={item.para} end={item.fim} className={({ isActive }) => `nav-link ${isActive ? "text-success fw-semibold" : ""}`}>
@@ -56,8 +57,13 @@ export default function Topbar({ mostrarNotificar = true }: Props) {
               </Link>
             )}
             <div className="position-relative">
-              <button className="btn btn-outline-success btn-sm" onClick={() => setMenuAberto((aberto) => !aberto)}>
-                {usuario?.nome?.split(" ")[0] ?? "Conta"}
+              <button
+                className="btn btn-success rounded-circle fw-bold p-0"
+                style={{ width: 40, height: 40 }}
+                title="Minha conta"
+                onClick={() => setMenuAberto((aberto) => !aberto)}
+              >
+                {iniciais(usuario?.nome ?? "")}
               </button>
               {menuAberto && (
                 <div className="dropdown-menu dropdown-menu-end show" data-bs-popper="end">
