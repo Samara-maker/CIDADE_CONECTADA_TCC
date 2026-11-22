@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Icon from "../../components/Icon";
-import { STATUS_OPCOES, dataCurta, encerrada, numeroProtocolo, selo } from "../../utils/format";
+import Selo from "../../components/Selo";
+import { STATUS_OPCOES, dataCurta, encerrada, numeroProtocolo } from "../../utils/format";
 import { OcorrenciaAdmin, ordenarPorUrgencia } from "./tipos";
 
 interface Props {
@@ -30,24 +30,26 @@ export default function Ocorrencias({ ocorrencias, aoAtualizar }: Props) {
 
   return (
     <>
-      <div className="cc-admin-cab">
-        <div>
-          <h1 className="cc-titulo">Todas as Ocorrências</h1>
-          <p className="cc-subtitulo" style={{ fontSize: 14 }}>{ativas} ativas · ordenadas por urgência</p>
+      <div className="mb-3">
+        <h1 className="h3 mb-0">Todas as ocorrências</h1>
+        <small className="text-muted">{ativas} ativas, ordenadas por urgência</small>
+      </div>
+
+      <div className="row g-2 mb-3">
+        <div className="col-md-6">
+          <input className="form-control" placeholder="Pesquise aqui" value={busca} onChange={(e) => setBusca(e.target.value)} />
         </div>
-        <div className="cc-admin-ferr">
-          <div className="cc-busca-adm">
-            <input placeholder="Pesquise aqui" value={busca} onChange={(e) => setBusca(e.target.value)} />
-            <Icon nome="busca" />
-          </div>
-          <select className="cc-select-adm" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <div className="col-md-3">
+          <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Todos os status</option>
             {STATUS_OPCOES.map((s) => (
               <option key={s.valor} value={s.valor}>{s.rotulo}</option>
             ))}
           </select>
-          <select className="cc-select-adm" value={secretaria} onChange={(e) => setSecretaria(e.target.value)}>
-            <option value="">Todas secretarias</option>
+        </div>
+        <div className="col-md-3">
+          <select className="form-select" value={secretaria} onChange={(e) => setSecretaria(e.target.value)}>
+            <option value="">Todas as secretarias</option>
             {secretarias.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -55,35 +57,34 @@ export default function Ocorrencias({ ocorrencias, aoAtualizar }: Props) {
         </div>
       </div>
 
-      <div className="cc-tabela-wrap">
-        <table className="cc-tabela">
-          <thead>
-            <tr><th>#</th><th>Data</th><th>Categoria</th><th>Endereço</th><th>Status</th><th>Secretaria</th><th>SLA</th><th>Ações</th></tr>
-          </thead>
-          <tbody>
-            {lista.map((o) => {
-              const etiqueta = selo(o.status, o.nivel_urgencia);
-              return (
+      <div className="card shadow-sm">
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-light">
+              <tr><th>#</th><th>Data</th><th>Categoria</th><th>Endereço</th><th>Status</th><th>Secretaria</th><th>SLA</th><th></th></tr>
+            </thead>
+            <tbody>
+              {lista.map((o) => (
                 <tr key={o.id}>
                   <td>{numeroProtocolo(o.protocolo).replace("#", "")}</td>
                   <td>{dataCurta(o.criado_em)}</td>
                   <td>{o.categoria.nome.split(" ")[0]}</td>
                   <td>{o.endereco}</td>
-                  <td><span className={`cc-pill-tabela ${etiqueta.classe}`}>{etiqueta.rotulo}</span></td>
+                  <td><Selo status={o.status} urgencia={o.nivel_urgencia} /></td>
                   <td>{o.categoria.secretaria?.sigla}</td>
                   <td>{dataCurta(o.prazo_sla)}</td>
-                  <td>
-                    <div className="cc-acao-tab">
-                      {!encerrada(o.status) && <button className="cc-btn-tab" onClick={() => aoAtualizar(o)}>Status</button>}
-                      <button className="cc-btn-ver" onClick={() => navegar(`/ocorrencia/${o.id}`)}>Ver</button>
-                    </div>
+                  <td className="text-end text-nowrap">
+                    {!encerrada(o.status) && (
+                      <button className="btn btn-success btn-sm me-1" onClick={() => aoAtualizar(o)}>Status</button>
+                    )}
+                    <button className="btn btn-outline-secondary btn-sm" onClick={() => navegar(`/ocorrencia/${o.id}`)}>Ver</button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {lista.length === 0 && <div className="cc-vazio">Nenhuma ocorrência encontrada.</div>}
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {lista.length === 0 && <p className="text-center text-muted py-4 mb-0">Nenhuma ocorrência encontrada.</p>}
       </div>
     </>
   );

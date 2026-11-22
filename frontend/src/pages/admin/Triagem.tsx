@@ -1,7 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
 import { useToast } from "../../components/Toast";
-import Icon from "../../components/Icon";
 import { horasDesde, mensagemErro, protocoloCurto, rotuloUrgencia } from "../../utils/format";
 import { Equipe, OcorrenciaAdmin } from "./tipos";
 
@@ -49,45 +48,48 @@ export default function Triagem({ ocorrencias, equipes, aoMudar }: Props) {
 
   return (
     <>
-      <div className="cc-admin-cab" style={{ marginBottom: 14 }}>
-        <div>
-          <h1 className="cc-titulo">Triagem Pendente</h1>
-          <p className="cc-subtitulo" style={{ fontSize: 14 }}>{pendentes.length} ocorrências aguardando classificação</p>
-        </div>
+      <div className="mb-3">
+        <h1 className="h3 mb-0">Triagem pendente</h1>
+        <small className="text-muted">{pendentes.length} ocorrências aguardando classificação</small>
       </div>
 
       {atrasadas > 0 && (
-        <div className="cc-alerta">
-          <Icon nome="alerta" />
-          Atenção: Há ocorrências há mais de 24h sem triagem.
-        </div>
+        <div className="alert alert-warning">Atenção: há ocorrências há mais de 24h sem triagem.</div>
       )}
 
-      <div className="cc-triagem">
-        {pendentes.length === 0 && <div className="cc-vazio">Nenhuma ocorrência aguardando triagem.</div>}
+      {pendentes.length === 0 && <p className="text-center text-muted py-4">Nenhuma ocorrência aguardando triagem.</p>}
+
+      <div className="list-group shadow-sm">
         {pendentes.map((o) => {
           const horas = horasDesde(o.criado_em);
           const opcoes = equipes.filter((e) => e.ativa && e.secretaria === o.categoria.secretaria?.nome);
           return (
-            <div key={o.id} className="cc-triagem-item">
-              <div>
-                  <b>{protocoloCurto(o.protocolo)} · {o.categoria.nome}, {o.endereco}</b>                <div className="meta">
-                  Há <em>{horas}h</em> sem triagem · {rotuloUrgencia(o.nivel_urgencia)}
+            <div key={o.id} className="list-group-item">
+              <div className="row align-items-center g-2">
+                <div className="col-lg-6">
+                  <div className="fw-semibold">
+                    {protocoloCurto(o.protocolo)} · {o.categoria.nome}, {o.endereco}
+                  </div>
+                  <small className="text-muted">
+                    Há <span className="text-danger fw-semibold">{horas}h</span> sem triagem · {rotuloUrgencia(o.nivel_urgencia)}
+                  </small>
                 </div>
-              </div>
-              <div className="cc-triagem-acoes">
-                <select
-                  className="cc-select-adm"
-                  value={escolhas[o.id] ?? ""}
-                  onChange={(e) => setEscolhas({ ...escolhas, [o.id]: e.target.value })}
-                >
-                  <option value="">Encaminhar...</option>
-                  {opcoes.map((e) => (
-                    <option key={e.id} value={e.id}>{e.nome}</option>
-                  ))}
-                </select>
-                <button className="cc-btn cc-btn-ok" onClick={() => confirmar(o)}>Confirmar</button>
-                <button className="cc-btn cc-btn-risco" onClick={() => cancelar(o)}>Cancelar</button>
+                <div className="col-lg-6">
+                  <div className="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <select
+                      className="form-select w-auto"
+                      value={escolhas[o.id] ?? ""}
+                      onChange={(e) => setEscolhas({ ...escolhas, [o.id]: e.target.value })}
+                    >
+                      <option value="">Encaminhar...</option>
+                      {opcoes.map((e) => (
+                        <option key={e.id} value={e.id}>{e.nome}</option>
+                      ))}
+                    </select>
+                    <button className="btn btn-success" onClick={() => confirmar(o)}>Confirmar</button>
+                    <button className="btn btn-outline-danger" onClick={() => cancelar(o)}>Cancelar</button>
+                  </div>
+                </div>
               </div>
             </div>
           );

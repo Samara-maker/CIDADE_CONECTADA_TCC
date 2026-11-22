@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
-import Icon from "../../components/Icon";
+import Janela from "../../components/Janela";
 import { useToast } from "../../components/Toast";
 import { STATUS_OPCOES, mensagemErro, protocoloCurto } from "../../utils/format";
 import { Equipe, OcorrenciaAdmin } from "./tipos";
@@ -46,76 +46,72 @@ export default function ModalStatus({ ocorrencia, equipes, aoFechar, aoSalvar }:
   }
 
   return (
-    <div className="cc-fundo" onClick={aoFechar}>
-      <div className="cc-janela" style={{ width: 470 }} onClick={(e) => e.stopPropagation()}>
-        <div className="cc-janela-miolo" style={{ padding: "14px 22px 8px" }}>
-          <button className="cc-fechar" onClick={aoFechar} style={{ top: 14, right: 14 }}>
-            <Icon nome="cruz" tamanho={14} />
+    <Janela
+      titulo="Atualizar status da ocorrência"
+      aoFechar={aoFechar}
+      rodape={
+        <>
+          <button className="btn btn-outline-secondary" onClick={aoFechar}>Cancelar</button>
+          <button className="btn btn-success" onClick={salvar} disabled={salvando}>
+            {salvando ? "Salvando..." : "Salvar e notificar cidadão"}
           </button>
-          <h3 style={{ fontSize: 17, fontWeight: 600 }}>Atualizar Status da Ocorrência</h3>
-          <p style={{ fontSize: 15 }}>
-            Protocolo <b>{protocoloCurto(ocorrencia.protocolo)}</b> · Cidadão será notificado automaticamente.
-          </p>
+        </>
+      }
+    >
+      <p className="text-muted">
+        Protocolo <b>{protocoloCurto(ocorrencia.protocolo)}</b>. O cidadão será notificado automaticamente.
+      </p>
 
-          <div className="cc-campo" style={{ marginBottom: 12 }}>
-            <label className="cc-label" style={{ fontWeight: 600 }}>Novo Status *</label>
-            <select className="cc-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-              {STATUS_OPCOES.map((s) => (
-                <option key={s.valor} value={s.valor}>{s.rotulo}</option>
-              ))}
-            </select>
-          </div>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Novo status</label>
+        <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+          {STATUS_OPCOES.map((s) => (
+            <option key={s.valor} value={s.valor}>{s.rotulo}</option>
+          ))}
+        </select>
+      </div>
 
-          <div className="cc-campo" style={{ marginBottom: 12 }}>
-            <label className="cc-label" style={{ fontWeight: 600 }}>Secretaria Responsável</label>
-            <select className="cc-select" value={secretaria} disabled>
-              <option>{secretaria || "Não definida"}</option>
-            </select>
-          </div>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Secretaria responsável</label>
+        <select className="form-select" value={secretaria} disabled>
+          <option>{secretaria || "Não definida"}</option>
+        </select>
+      </div>
 
-          <div className="cc-campo" style={{ marginBottom: 12 }}>
-            <label className="cc-label" style={{ fontWeight: 600 }}>Equipe Designada</label>
-            <select className="cc-select" value={equipeId} onChange={(e) => setEquipeId(e.target.value)}>
-              <option value="">Selecione...</option>
-              {equipesDaSecretaria.map((e) => (
-                <option key={e.id} value={e.id}>{e.nome}</option>
-              ))}
-            </select>
-          </div>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Equipe designada</label>
+        <select className="form-select" value={equipeId} onChange={(e) => setEquipeId(e.target.value)}>
+          <option value="">Selecione...</option>
+          {equipesDaSecretaria.map((e) => (
+            <option key={e.id} value={e.id}>{e.nome}</option>
+          ))}
+        </select>
+      </div>
 
-          <div className="cc-grid-2" style={{ gap: 12 }}>
-            <div className="cc-campo" style={{ marginBottom: 12 }}>
-              <label className="cc-label" style={{ fontWeight: 600 }}>Prazo</label>
-              <input type="date" className="cc-input" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
-            </div>
-            <div className="cc-campo" style={{ marginBottom: 12 }}>
-              <label className="cc-label" style={{ fontWeight: 600 }}>Prioridade</label>
-              <select className="cc-select" value={urgencia} onChange={(e) => setUrgencia(e.target.value)}>
-                <option value="alta">Urgente</option>
-                <option value="media">Moderado</option>
-                <option value="baixa">Baixo</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="cc-campo" style={{ marginBottom: 12 }}>
-            <label className="cc-label" style={{ fontWeight: 600 }}>Observação interna (só admin)</label>
-            <textarea className="cc-textarea" style={{ minHeight: 70 }} placeholder="Visível apenas para administradores..." value={observacao} onChange={(e) => setObservacao(e.target.value)} />
-          </div>
-
-          <div className="cc-campo" style={{ marginBottom: 6 }}>
-            <label className="cc-label" style={{ fontWeight: 600 }}>Mensagem ao cidadão (e-mail)</label>
-            <textarea className="cc-textarea" style={{ minHeight: 70 }} placeholder="Ex: Sua ocorrência foi atendida. Equipe designada. Previsão: 12/08/2026." value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
-          </div>
+      <div className="row">
+        <div className="col-6 mb-3">
+          <label className="form-label fw-semibold">Prazo</label>
+          <input type="date" className="form-control" value={prazo} onChange={(e) => setPrazo(e.target.value)} />
         </div>
-
-        <div className="cc-janela-acoes">
-          <button className="cc-btn cc-btn-claro" style={{ minWidth: 150, fontSize: 13 }} onClick={aoFechar}>Cancelar</button>
-          <button className="cc-btn cc-btn-escuro" style={{ minWidth: 190, fontSize: 13 }} onClick={salvar} disabled={salvando}>
-            {salvando ? "Salvando..." : "Salvar e Notificar Cidadão"}
-          </button>
+        <div className="col-6 mb-3">
+          <label className="form-label fw-semibold">Prioridade</label>
+          <select className="form-select" value={urgencia} onChange={(e) => setUrgencia(e.target.value)}>
+            <option value="alta">Urgente</option>
+            <option value="media">Moderado</option>
+            <option value="baixa">Baixo</option>
+          </select>
         </div>
       </div>
-    </div>
+
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Observação interna (só admin)</label>
+        <textarea className="form-control" rows={3} placeholder="Visível apenas para administradores..." value={observacao} onChange={(e) => setObservacao(e.target.value)} />
+      </div>
+
+      <div>
+        <label className="form-label fw-semibold">Mensagem ao cidadão (e-mail)</label>
+        <textarea className="form-control" rows={3} placeholder="Ex: Sua ocorrência foi atendida. Equipe designada." value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
+      </div>
+    </Janela>
   );
 }
