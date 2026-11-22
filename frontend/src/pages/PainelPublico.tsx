@@ -5,19 +5,14 @@ import Icon from "../components/Icon";
 import { Resumo } from "../utils/tipos";
 import { formatarDias, pluralCasos } from "../utils/format";
 
-const CORES_CATEGORIA = [
-  { forte: "#065f2c", fraca: "#cfe0d4", texto: "#065f2c" },
-  { forte: "#fdc21a", fraca: "#f8edd7", texto: "#f5a800" },
-  { forte: "#1d5bff", fraca: "#93a9d6", texto: "#1d5bff" },
-  { forte: "#ff2442", fraca: "#f6dde1", texto: "#b5172f" },
-  { forte: "#718096", fraca: "#dfe3e8", texto: "#374151" },
-];
+const CORES_CATEGORIA = ["#065f2c", "#fdc21a", "#1d5bff", "#ff2442", "#718096"];
 
-const CORES_SECRETARIA = [
-  { fundo: "#cfe3d2", texto: "#065f2c", barra: "#065f2c", trilho: "#a8c8ac" },
-  { fundo: "#fdecbb", texto: "#f5a800", barra: "#fdc21a", trilho: "#f5df9a" },
-  { fundo: "#c9d5e8", texto: "#1180a8", barra: "#1d5bff", trilho: "#92a8d3" },
-];
+const NIVEIS = [
+  { campo: "muito_satisfeito", rotulo: "Muito satisfeito", cor: "#065f2c", icone: "muitoFeliz" },
+  { campo: "satisfeito", rotulo: "Satisfeito", cor: "#3f8f47", icone: "feliz" },
+  { campo: "neutro", rotulo: "Neutro", cor: "#718096", icone: "neutro" },
+  { campo: "insatisfeito", rotulo: "Insatisfeito", cor: "#ff2442", icone: "triste" },
+] as const;
 
 export default function PainelPublico() {
   const [resumo, setResumo] = useState<Resumo | null>(null);
@@ -29,104 +24,106 @@ export default function PainelPublico() {
   const maiorCategoria = Math.max(1, ...(resumo?.por_categoria.map((c) => c.total) ?? [1]));
   const maiorSecretaria = Math.max(1, ...(resumo?.por_secretaria.map((s) => s.total) ?? [1]));
   const sat = resumo?.satisfacao;
-  const ano = new Date().getFullYear();
+  const temAvaliacao = Boolean(sat && sat.total_avaliacoes > 0);
 
-  const linhasSatisfacao = [
-    { rotulo: "Muito satisfeito", valor: sat?.muito_satisfeito ?? 0, cor: "#065f2c", fundo: "#cfe0d4", icone: "muitoFeliz" },
-    { rotulo: "Satisfeito", valor: sat?.satisfeito ?? 0, cor: "#3f8f47", fundo: "#cfe3d2", icone: "feliz" },
-    { rotulo: "Neutro", valor: sat?.neutro ?? 0, cor: "#718096", fundo: "#dfe3e8", icone: "neutro" },
-    { rotulo: "Insatisfeito", valor: sat?.insatisfeito ?? 0, cor: "#ff2442", fundo: "#f6dde1", icone: "triste" },
+  const numeros = [
+    { rotulo: "Notificações abertas", valor: resumo?.abertas ?? "-", cor: "success" },
+    { rotulo: "Em andamento", valor: resumo?.em_resolucao ?? "-", cor: "warning" },
+    { rotulo: `Resolvidos (${new Date().getFullYear()})`, valor: resumo?.resolvidas ?? "-", cor: "success" },
+    { rotulo: "Tempo médio de resposta", valor: resumo ? formatarDias(resumo.tempo_medio_dias) : "-", cor: "primary" },
+    { rotulo: "Taxa de satisfação", valor: temAvaliacao ? `${sat?.taxa}%` : "-", cor: "danger" },
   ];
 
   return (
     <CitizenLayout>
-      <div className="cc-conteudo" style={{ maxWidth: 1400 }}>
-        <div className="cc-stats cc-stats-5">
-          <div className="cc-stat verde">
-            <div className="cc-stat-num">{resumo?.abertas ?? "-"}</div>
-            <div className="cc-stat-rot">Notificações abertas</div>
-          </div>
-          <div className="cc-stat amarelo">
-            <div className="cc-stat-num">{resumo?.em_resolucao ?? "-"}</div>
-            <div className="cc-stat-rot">Em andamento</div>
-          </div>
-          <div className="cc-stat verde">
-            <div className="cc-stat-num">{resumo?.resolvidas ?? "-"}</div>
-            <div className="cc-stat-rot">Resolvidos ({ano})</div>
-          </div>
-          <div className="cc-stat azul">
-            <div className="cc-stat-num">{resumo ? formatarDias(resumo.tempo_medio_dias) : "-"}</div>
-            <div className="cc-stat-rot">Tempo médio de resposta</div>
-          </div>
-          <div className="cc-stat roxo">
-            <div className="cc-stat-num">{sat && sat.total_avaliacoes > 0 ? `${sat.taxa}%` : "-"}</div>
-            <div className="cc-stat-rot">Taxa de Satisfação</div>
-          </div>
+      <div className="container py-4">
+        <div className="row g-3 mb-4">
+          {numeros.map((item) => (
+            <div key={item.rotulo} className="col-6 col-lg">
+              <div className={`card h-100 border-0 border-start border-4 border-${item.cor} shadow-sm`}>
+                <div className="card-body">
+                  <div className="h3 mb-0">{item.valor}</div>
+                  <small className="text-muted">{item.rotulo}</small>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="cc-tres">
-          <div>
-            <h2 className="cc-secao cc-secao-barra">Por categoria</h2>
-            <div className="cc-caixa">
-              {resumo?.por_categoria.map((categoria, indice) => {
-                const cor = CORES_CATEGORIA[indice % CORES_CATEGORIA.length];
-                return (
-                  <div key={categoria.id} className="cc-meta-linha">
-                    <div className="cc-meta">
+        <div className="row g-4">
+          <div className="col-lg-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+                <h2 className="h5 mb-3">Por categoria</h2>
+                {resumo?.por_categoria.map((categoria, indice) => (
+                  <div key={categoria.id} className="mb-3">
+                    <div className="d-flex justify-content-between small">
                       <span>{categoria.nome}</span>
-                      <span style={{ color: cor.texto }}>{categoria.total}</span>
+                      <strong>{categoria.total}</strong>
                     </div>
-                    <div className="cc-barra" style={{ background: cor.fraca }}>
-                      <div style={{ width: `${(categoria.total / maiorCategoria) * 100}%`, background: cor.forte }} />
+                    <div className="progress" style={{ height: 8 }}>
+                      <div
+                        className="progress-bar"
+                        style={{
+                          width: `${(categoria.total / maiorCategoria) * 100}%`,
+                          background: CORES_CATEGORIA[indice % CORES_CATEGORIA.length],
+                        }}
+                      />
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
 
-          <div>
-            <h2 className="cc-secao cc-secao-barra">Por Secretaria</h2>
-            <div className="cc-caixa">
-              {resumo?.por_secretaria.map((secretaria, indice) => {
-                const cor = CORES_SECRETARIA[indice % CORES_SECRETARIA.length];
-                return (
-                  <div key={secretaria.id} className="cc-bloco-sec" style={{ background: cor.fundo }}>
-                    <h4 style={{ color: cor.texto }}>{secretaria.nome}</h4>
-                    <p>
-                      <b>{pluralCasos(secretaria.total)}</b> T.médio:{" "}
+          <div className="col-lg-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+                <h2 className="h5 mb-3">Por secretaria</h2>
+                {resumo?.por_secretaria.map((secretaria) => (
+                  <div key={secretaria.id} className="border rounded p-3 mb-3">
+                    <h3 className="h6 text-success">{secretaria.nome}</h3>
+                    <p className="small mb-2">
+                      <strong>{pluralCasos(secretaria.total)}</strong> · Tempo médio:{" "}
                       {secretaria.tempo_medio_dias !== null ? `${String(secretaria.tempo_medio_dias).replace(".", ",")} dias` : "-"}
                     </p>
-                    <div className="cc-barra" style={{ background: cor.trilho, margin: 0 }}>
-                      <div style={{ width: `${(secretaria.total / maiorSecretaria) * 100}%`, background: cor.barra }} />
+                    <div className="progress" style={{ height: 8 }}>
+                      <div
+                        className="progress-bar bg-success"
+                        style={{ width: `${(secretaria.total / maiorSecretaria) * 100}%` }}
+                      />
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
 
-          <div>
-            <h2 className="cc-secao cc-secao-barra">Avaliação Cidadã</h2>
-            <div className="cc-caixa">
-              <div className="cc-satisfacao-num">{sat && sat.total_avaliacoes > 0 ? `${sat.taxa}%` : "-"}</div>
-              <div className="cc-satisfacao-rot">
-                {sat && sat.total_avaliacoes > 0
-                  ? `Relação de satisfação (${sat.total_avaliacoes} ${sat.total_avaliacoes === 1 ? "avaliação" : "avaliações"})`
-                  : "Ainda não há avaliações"}
-              </div>
-              {linhasSatisfacao.map((linha) => (
-                <div key={linha.rotulo} className="cc-sat-linha">
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <Icon nome={linha.icone} tamanho={16} />
-                    {linha.rotulo}
-                  </span>
-                  <div className="cc-barra" style={{ background: linha.fundo }}>
-                    <div style={{ width: `${linha.valor}%`, background: linha.cor }} />
+          <div className="col-lg-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+                <h2 className="h5 mb-3">Avaliação cidadã</h2>
+                <div className="display-5 text-success">{temAvaliacao ? `${sat?.taxa}%` : "-"}</div>
+                <p className="text-muted small">
+                  {sat && temAvaliacao
+                    ? `Relação de satisfação (${sat.total_avaliacoes} ${sat.total_avaliacoes === 1 ? "avaliação" : "avaliações"})`
+                    : "Ainda não há avaliações"}
+                </p>
+                {NIVEIS.map((nivel) => (
+                  <div key={nivel.campo} className="d-flex align-items-center gap-2 mb-2">
+                    <span className="small d-flex align-items-center gap-1" style={{ width: 150 }}>
+                      <Icon nome={nivel.icone} tamanho={16} />
+                      {nivel.rotulo}
+                    </span>
+                    <div className="progress flex-grow-1" style={{ height: 8 }}>
+                      <div className="progress-bar" style={{ width: `${sat?.[nivel.campo] ?? 0}%`, background: nivel.cor }} />
+                    </div>
+                    <span className="small text-end" style={{ width: 40 }}>
+                      {sat?.[nivel.campo] ?? 0}%
+                    </span>
                   </div>
-                  <span>{linha.valor}%</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

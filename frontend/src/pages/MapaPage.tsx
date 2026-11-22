@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CitizenLayout from "../components/CitizenLayout";
-import Icon from "../components/Icon";
 import MapView, { PontoMapa } from "../components/MapView";
 import { OcorrenciaPublica } from "../utils/tipos";
 import { corMapa, ordenarCategorias, tituloOcorrencia } from "../utils/format";
@@ -25,10 +24,7 @@ export default function MapaPage() {
     return lista.filter(
       (item) =>
         (!categoria || item.categoria.id === categoria) &&
-        (!termo ||
-          `${item.categoria.nome} ${item.endereco} ${item.protocolo}`
-            .toLowerCase()
-            .includes(termo))
+        (!termo || `${item.categoria.nome} ${item.endereco} ${item.protocolo}`.toLowerCase().includes(termo))
     );
   }, [lista, categoria, busca]);
 
@@ -45,45 +41,53 @@ export default function MapaPage() {
   return (
     <CitizenLayout>
       <div className="cc-mapa-tela">
-        <aside className="cc-mapa-lateral">
-          <div className="cc-mapa-topo">
-            <div className="cc-busca">
-              <Icon nome="busca" />
-              <input placeholder="Buscar Endereço..." value={busca} onChange={(e) => setBusca(e.target.value)} />
-            </div>
-            <div className="cc-filtros" style={{ marginBottom: 0 }}>
-              <button className={`cc-filtro ${categoria === "" ? "ativo" : ""}`} onClick={() => setCategoria("")}>
+        <aside className="cc-mapa-lateral bg-white">
+          <div className="p-3 border-bottom">
+            <input
+              className="form-control mb-2"
+              placeholder="Buscar endereço..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                className={`btn btn-sm ${categoria === "" ? "btn-success" : "btn-outline-success"}`}
+                onClick={() => setCategoria("")}
+              >
                 Todos
               </button>
               {categorias.map((item) => (
                 <button
                   key={item.id}
-                  className={`cc-filtro ${categoria === item.id ? "ativo" : ""}`}
+                  className={`btn btn-sm ${categoria === item.id ? "btn-success" : "btn-outline-success"}`}
                   onClick={() => setCategoria(item.id)}
                 >
-                  <Icon nome={item.icone} />
                   {item.nome.split(" ")[0]}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="cc-mapa-lista">
-            {filtradas.length === 0 && <div className="cc-vazio">Nenhuma notificação encontrada.</div>}
+          <div className="list-group list-group-flush overflow-auto flex-grow-1">
+            {filtradas.length === 0 && <p className="text-muted text-center p-4 mb-0">Nenhuma notificação encontrada.</p>}
             {filtradas.map((item) => (
-              <div
+              <button
                 key={item.id}
-                className={`cc-mapa-item ${selecionado === item.id ? "ativo" : ""}`}
+                type="button"
+                className={`list-group-item list-group-item-action text-dark d-flex justify-content-between align-items-center gap-2 text-start ${
+                  selecionado === item.id ? "list-group-item-success" : ""
+                }`}
                 onClick={() => setSelecionado(item.id)}
               >
                 <div>
-                  <div className="t">{tituloOcorrencia(item)}</div>
-                  <div className="m">
-                    {item.categoria.nome}
-                  </div>
+                  <div className="fw-semibold">{tituloOcorrencia(item)}</div>
+                  <small className="text-muted">{item.categoria.nome}</small>
                 </div>
-                <span className="cc-bolinha" style={{ background: corMapa(item.status, item.nivel_urgencia) }} />
-              </div>
+                <span
+                  className="rounded-circle d-inline-block flex-shrink-0"
+                  style={{ width: 12, height: 12, background: corMapa(item.status, item.nivel_urgencia) }}
+                />
+              </button>
             ))}
           </div>
         </aside>

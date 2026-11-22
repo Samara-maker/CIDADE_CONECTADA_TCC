@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/Toast";
 import CitizenLayout from "../components/CitizenLayout";
+import Janela from "../components/Janela";
 import Icon from "../components/Icon";
 import Selo from "../components/Selo";
 import { OcorrenciaPublica } from "../utils/tipos";
@@ -63,58 +64,53 @@ export default function Minhas() {
 
   return (
     <CitizenLayout>
-      <div className="cc-conteudo">
-        <h1 className="cc-titulo">Minhas Notificações</h1>
-        <p className="cc-subtitulo" style={{ marginBottom: 26 }}>
-          {usuario?.nome} - {lista.length} {lista.length === 1 ? "notificação enviada" : "notificações enviadas"}
+      <div className="container py-4">
+        <h1 className="h3 mb-1">Minhas notificações</h1>
+        <p className="text-muted mb-4">
+          {usuario?.nome} · {lista.length} {lista.length === 1 ? "notificação enviada" : "notificações enviadas"}
         </p>
 
-        <div className="cc-lista" style={{ gap: 12 }}>
-          {carregando && (
-            <div className="cc-vazio">
-              <span className="cc-spinner" />
-            </div>
-          )}
-          {!carregando && lista.length === 0 && (
-            <div className="cc-vazio">
-              Você ainda não enviou nenhuma notificação.{" "}
-              <Link to="/nova" className="cc-link">
-                Notificar um problema
-              </Link>
-            </div>
-          )}
+        {carregando && <div className="spinner-border text-success" />}
+        {!carregando && lista.length === 0 && (
+          <div className="alert alert-light border">
+            Você ainda não enviou nenhuma notificação.{" "}
+            <Link to="/nova" className="text-success">
+              Notificar um problema
+            </Link>
+          </div>
+        )}
 
+        <div className="vstack gap-2">
           {lista.map((item) => {
             const info = infoStatus(item.status);
             const cor = corBarra(item.status, item.nivel_urgencia);
 
             return (
-              <div key={item.id} className="cc-minha" onClick={() => navegar(`/ocorrencia/${item.id}`)}>
-                <div className="cc-minha-esq">
-                  <div className="cc-item-titulo">{tituloOcorrencia(item)}</div>
-                  <div className="cc-item-meta">
-                    {item.categoria.nome}
-                    <strong>Municipal</strong>
+              <div key={item.id} className="card shadow-sm" role="button" onClick={() => navegar(`/ocorrencia/${item.id}`)}>
+                <div className="card-body d-flex justify-content-between align-items-center gap-3">
+                  <div className="flex-grow-1">
+                    <div className="fw-semibold">{tituloOcorrencia(item)}</div>
+                    <small className="text-muted">{item.categoria.nome} · Municipal</small>
+                    <div className="progress mt-2" style={{ height: 6 }}>
+                      <div className="progress-bar" style={{ width: `${info.progresso}%`, background: cor.forte }} />
+                    </div>
                   </div>
-                  <div className="cc-barra fina" style={{ background: cor.fraca }}>
-                    <div style={{ width: `${info.progresso}%`, background: cor.forte }} />
-                  </div>
-                </div>
 
-                <div className="cc-minha-dir">
-                  <Selo status={item.status} urgencia={item.nivel_urgencia} />
-                  {item.status === "concluida" && (
-                    <button
-                      className="cc-btn-avaliar"
-                      disabled={item.avaliada}
-                      onClick={(evento) => {
-                        evento.stopPropagation();
-                        abrirAvaliacao(item);
-                      }}
-                    >
-                      {item.avaliada ? "Avaliada" : "Avaliar"}
-                    </button>
-                  )}
+                  <div className="d-flex flex-column align-items-end gap-2">
+                    <Selo status={item.status} urgencia={item.nivel_urgencia} />
+                    {item.status === "concluida" && (
+                      <button
+                        className="btn btn-sm btn-outline-success"
+                        disabled={item.avaliada}
+                        onClick={(evento) => {
+                          evento.stopPropagation();
+                          abrirAvaliacao(item);
+                        }}
+                      >
+                        {item.avaliada ? "Avaliada" : "Avaliar"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -123,48 +119,43 @@ export default function Minhas() {
       </div>
 
       {avaliando && (
-        <div className="cc-fundo" onClick={() => setAvaliando(null)}>
-          <div className="cc-janela" style={{ width: 480 }} onClick={(e) => e.stopPropagation()}>
-            <div className="cc-janela-miolo">
-              <button className="cc-fechar" onClick={() => setAvaliando(null)}>
-                <Icon nome="cruz" tamanho={16} />
-              </button>
-              <h3 style={{ fontSize: 24, marginBottom: 10, paddingRight: 40 }}>Como foi a resolução?</h3>
-              <p style={{ fontSize: 17, color: "#4b5563" }}>
-                Ocorrência: {tituloOcorrencia(avaliando)}.
-                <br />
-                Sua nota ajuda a prefeitura a melhorar o atendimento.
-              </p>
+        <Janela
+          titulo="Como foi a resolução?"
+          aoFechar={() => setAvaliando(null)}
+          rodape={
+            <button className="btn btn-success w-100" onClick={enviarAvaliacao}>
+              Enviar avaliação
+            </button>
+          }
+        >
+          <p className="text-muted">
+            Ocorrência: {tituloOcorrencia(avaliando)}. Sua nota ajuda a prefeitura a melhorar o atendimento.
+          </p>
 
-              <div className="cc-faces">
-                {NOTAS.map((opcao) => (
-                  <button
-                    key={opcao.valor}
-                    className={`cc-face ${nota === opcao.valor ? "ativa" : ""}`}
-                    onClick={() => setNota(opcao.valor)}
-                  >
-                    <Icon nome={opcao.icone} />
-                    {opcao.rotulo}
-                  </button>
-                ))}
+          <div className="row g-2 mb-3">
+            {NOTAS.map((opcao) => (
+              <div key={opcao.valor} className="col-6">
+                <button
+                  type="button"
+                  className={`btn w-100 ${nota === opcao.valor ? "btn-success" : "btn-outline-secondary"}`}
+                  onClick={() => setNota(opcao.valor)}
+                >
+                  <Icon nome={opcao.icone} tamanho={26} />
+                  <div className="small mt-1">{opcao.rotulo}</div>
+                </button>
               </div>
-
-              <label className="cc-label" style={{ fontWeight: 700 }}>
-                Conte mais (opcional)
-              </label>
-              <textarea
-                className="cc-textarea"
-                placeholder="O que podemos melhorar no atendimento?"
-                value={comentario}
-                onChange={(e) => setComentario(e.target.value)}
-                style={{ background: "#f3f6f3" }}
-              />
-              <button className="cc-btn cc-btn-bloco" style={{ marginTop: 18, borderRadius: 14, background: "#1f6e4f", fontSize: 15 }} onClick={enviarAvaliacao}>
-                Enviar avaliação
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
+
+          <label className="form-label">Conte mais (opcional)</label>
+          <textarea
+            className="form-control"
+            rows={3}
+            placeholder="O que podemos melhorar no atendimento?"
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+          />
+        </Janela>
       )}
     </CitizenLayout>
   );

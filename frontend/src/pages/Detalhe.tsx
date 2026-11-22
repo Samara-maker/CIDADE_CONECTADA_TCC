@@ -120,6 +120,8 @@ function Estrutura({ admin, children }: { admin: boolean; children: ReactNode })
   return <CitizenLayout>{children}</CitizenLayout>;
 }
 
+const COR_PASSO = { feito: "bg-success", atual: "bg-warning", espera: "bg-secondary", negado: "bg-danger" };
+
 export default function DetalheOcorrencia() {
   const { id } = useParams();
   const navegar = useNavigate();
@@ -152,8 +154,8 @@ export default function DetalheOcorrencia() {
   if (erro) {
     return (
       <Estrutura admin={ehAdmin}>
-        <div className="cc-conteudo">
-          <div className="cc-erro">{erro}</div>
+        <div className="container py-4">
+          <div className="alert alert-danger">{erro}</div>
         </div>
       </Estrutura>
     );
@@ -162,8 +164,8 @@ export default function DetalheOcorrencia() {
   if (!dados) {
     return (
       <Estrutura admin={ehAdmin}>
-        <div className="cc-vazio">
-          <span className="cc-spinner" />
+        <div className="text-center py-5">
+          <div className="spinner-border text-success" />
         </div>
       </Estrutura>
     );
@@ -176,124 +178,132 @@ export default function DetalheOcorrencia() {
 
   return (
     <Estrutura admin={ehAdmin}>
-      <div className="cc-faixa">
-        <button className="cc-voltar" onClick={() => navegar(-1)}>
-          <Icon nome="voltar" />
-          Voltar
-        </button>
-        <div className="cc-faixa-cat">{dados.categoria.nome}</div>
-        <div className="cc-faixa-titulo">
-          {dados.categoria.nome} em {dados.endereco}
-        </div>
-        <div className="cc-chips">
-          <div className="cc-chip">
-            {urgente && <i />}
-            {urgente ? "Urgente" : rotuloUrgencia(dados.nivel_urgencia)}
+      <div className="bg-success text-white py-4">
+        <div className="container">
+          <button className="btn btn-sm btn-light mb-3" onClick={() => navegar(-1)}>
+            Voltar
+          </button>
+          <div className="small opacity-75">{dados.categoria.nome}</div>
+          <h1 className="h3">
+            {dados.categoria.nome} em {dados.endereco}
+          </h1>
+          <div className="d-flex flex-wrap gap-2">
+            <span className={`badge ${urgente ? "bg-danger" : "bg-light text-dark"}`}>
+              {urgente ? "Urgente" : rotuloUrgencia(dados.nivel_urgencia)}
+            </span>
+            <span className="badge bg-light text-dark">Ji-Paraná, RO</span>
+            <span className="badge bg-light text-dark">Reportado em {formatarData(dados.criado_em)}</span>
+            <span className="badge bg-light text-dark">Protocolo {protocoloCurto(dados.protocolo)}</span>
           </div>
-          <div className="cc-chip">Ji-Paraná, RO</div>
-          <div className="cc-chip">Reportado em {formatarData(dados.criado_em)}</div>
-          <div className="cc-chip">Protocolo {protocoloCurto(dados.protocolo)}</div>
         </div>
       </div>
 
-      <div className="cc-detalhe">
-        <div>
-          <h3>Acompanhamento</h3>
-          <div className="cc-linha-tempo">
-            {passos.map((passo, indice) => (
-              <div className="cc-passo" key={passo.titulo}>
-                <div className="cc-passo-trilho">
-                  <div className={`cc-passo-marca ${passo.estado}`}>
-                    <Icon
-                      nome={passo.estado === "feito" ? "check" : passo.estado === "negado" ? "cruz" : "engrenagemPequena"}
-                    />
+      <div className="container py-4">
+        <div className="row g-4">
+          <div className="col-lg-6">
+            <h2 className="h5 mb-3">Acompanhamento</h2>
+            <ol className="list-unstyled">
+              {passos.map((passo) => (
+                <li key={passo.titulo} className="d-flex gap-3 mb-3">
+                  <span
+                    className={`rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0 ${COR_PASSO[passo.estado]}`}
+                    style={{ width: 32, height: 32 }}
+                  >
+                    <Icon nome={passo.estado === "feito" ? "check" : passo.estado === "negado" ? "cruz" : "engrenagemPequena"} tamanho={16} />
+                  </span>
+                  <div className={passo.estado === "espera" ? "text-muted" : ""}>
+                    <div className="fw-semibold">{passo.titulo}</div>
+                    {passo.data && <div className="small">{passo.data}</div>}
+                    <div className="small">{passo.texto}</div>
                   </div>
-                  {indice < passos.length - 1 && <div className="cc-passo-linha" />}
-                </div>
-                <div className={`cc-passo-texto ${passo.estado === "atual" ? "atual" : passo.estado === "espera" ? "espera" : ""}`}>
-                  <b>{passo.titulo}</b>
-                  {passo.data && <>{passo.data}<br /></>}
-                  {passo.texto}
-                </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="row g-2 mb-3">
+              <div className="col-6">
+                <small className="text-muted d-block">Protocolo</small>
+                <strong className="text-success">{protocoloCurto(dados.protocolo)}</strong>
               </div>
-            ))}
-          </div>
-
-          <div className="cc-info">
-            <div><small>Protocolo</small><strong className="verde">{protocoloCurto(dados.protocolo)}</strong></div>
-            <div><small>Secretaria</small><strong>{dados.categoria.secretaria?.nome ?? "-"}</strong></div>
-            <div><small>Confirmações</small><strong className="verde">{dados.confirmacoes_total} cidadãos</strong></div>
-            <div><small>Prazo resposta</small><strong>{formatarData(dados.prazo_sla)}</strong></div>
-          </div>
-
-          {!ehAdmin && !encerrada(dados.status) && (
-            <button className={`cc-btn ${dados.ja_confirmei ? "" : "cc-btn-claro"}`} style={{ width: "100%" }} onClick={confirmar}>
-              <Icon nome="curtir" />
-              {dados.ja_confirmei ? "Você confirmou que o problema persiste" : "Confirmar que o problema persiste"}
-            </button>
-          )}
-          {ehAdmin && dados.cidadao && (
-            <div className="cc-descricao" style={{ marginTop: 14 }}>
-              <small style={{ color: "#6b7280" }}>Cidadão (visível só para administradores)</small>
-              <br />
-              <strong>{dados.cidadao.nome}</strong> · {dados.cidadao.email}
+              <div className="col-6">
+                <small className="text-muted d-block">Secretaria</small>
+                <strong>{dados.categoria.secretaria?.nome ?? "-"}</strong>
+              </div>
+              <div className="col-6">
+                <small className="text-muted d-block">Confirmações</small>
+                <strong className="text-success">{dados.confirmacoes_total} cidadãos</strong>
+              </div>
+              <div className="col-6">
+                <small className="text-muted d-block">Prazo de resposta</small>
+                <strong>{formatarData(dados.prazo_sla)}</strong>
+              </div>
             </div>
-          )}
-        </div>
 
-        <div>
-          <h3>Descrição</h3>
-          <div className="cc-descricao">{dados.descricao}</div>
-
-          <h3>Registro fotográfico</h3>
-          <div className="cc-foto" style={{ marginBottom: 22 }}>
-            {dados.foto_url ? (
-              <img src={`${ORIGEM_API}${dados.foto_url}`} alt="Foto enviada pelo cidadão" />
-            ) : (
-              <div>
-                <Icon nome="camera" />
-                <div style={{ marginTop: 6 }}>Nenhuma foto enviada</div>
+            {!ehAdmin && !encerrada(dados.status) && (
+              <button className={`btn w-100 ${dados.ja_confirmei ? "btn-success" : "btn-outline-success"}`} onClick={confirmar}>
+                {dados.ja_confirmei ? "Você confirmou que o problema persiste" : "Confirmar que o problema persiste"}
+              </button>
+            )}
+            {ehAdmin && dados.cidadao && (
+              <div className="alert alert-light border">
+                <small className="text-muted">Cidadão (visível só para administradores)</small>
+                <br />
+                <strong>{dados.cidadao.nome}</strong> · {dados.cidadao.email}
               </div>
             )}
           </div>
 
-          <h3>Localização</h3>
-          <div className="cc-localizacao">
-            <MapView
-              zoom={16}
-              centro={[Number(dados.latitude), Number(dados.longitude)]}
-              pontos={[
-                {
-                  id: dados.id,
-                  latitude: Number(dados.latitude),
-                  longitude: Number(dados.longitude),
-                  status: dados.status,
-                  urgencia: dados.nivel_urgencia,
-                  titulo: dados.categoria.nome,
-                  subtitulo: dados.endereco,
-                },
-              ]}
-            />
-          </div>
+          <div className="col-lg-6">
+            <h2 className="h5 mb-3">Descrição</h2>
+            <div className="card mb-4">
+              <div className="card-body">{dados.descricao}</div>
+            </div>
 
-          <div className="cc-progresso">
-            <div className="topo">
+            <h2 className="h5 mb-3">Registro fotográfico</h2>
+            <div className="mb-4">
+              {dados.foto_url ? (
+                <img src={`${ORIGEM_API}${dados.foto_url}`} alt="Foto enviada pelo cidadão" className="img-fluid rounded" />
+              ) : (
+                <div className="border rounded text-center text-muted py-4">Nenhuma foto enviada</div>
+              )}
+            </div>
+
+            <h2 className="h5 mb-3">Localização</h2>
+            <div className="border rounded overflow-hidden mb-4" style={{ height: 260 }}>
+              <MapView
+                zoom={16}
+                centro={[Number(dados.latitude), Number(dados.longitude)]}
+                pontos={[
+                  {
+                    id: dados.id,
+                    latitude: Number(dados.latitude),
+                    longitude: Number(dados.longitude),
+                    status: dados.status,
+                    urgencia: dados.nivel_urgencia,
+                    titulo: dados.categoria.nome,
+                    subtitulo: dados.endereco,
+                  },
+                ]}
+              />
+            </div>
+
+            <div className="d-flex justify-content-between small mb-1">
               <span>Progresso de resolução</span>
-              <span>{info.progresso}%</span>
+              <strong>{info.progresso}%</strong>
             </div>
-            <div className="cc-barra" style={{ background: cor.fraca }}>
-              <div style={{ width: `${info.progresso}%`, background: cor.forte }} />
+            <div className="progress" style={{ height: 8 }}>
+              <div className="progress-bar" style={{ width: `${info.progresso}%`, background: cor.forte }} />
             </div>
-            <div style={{ fontSize: 14, marginTop: 18 }}>Etapa atual: {info.etapa}</div>
-          </div>
+            <div className="small mt-2">Etapa atual: {info.etapa}</div>
 
-          {ehAdmin && (
-            <p style={{ marginTop: 16 }}>
-              <Link to="/admin" className="cc-link">
-                Voltar ao painel administrativo
-              </Link>
-            </p>
-          )}
+            {ehAdmin && (
+              <p className="mt-3">
+                <Link to="/admin" className="text-success">
+                  Voltar ao painel administrativo
+                </Link>
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </Estrutura>
