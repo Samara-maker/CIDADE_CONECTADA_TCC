@@ -2,14 +2,16 @@ import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { AuthDividido, CampoSenha } from "../components/AuthShell";
+import { AuthCartao, CampoSenha } from "../components/AuthShell";
 import BotaoGoogle from "../components/BotaoGoogle";
 import { mensagemErro } from "../utils/format";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  // Se o lembre-me foi marcado em um acesso anterior, o e-mail já vem preenchido
+  const emailLembrado = localStorage.getItem("cc_email_lembrado") ?? "";
+  const [email, setEmail] = useState(emailLembrado);
   const [senha, setSenha] = useState("");
-  const [lembrar, setLembrar] = useState(false);
+  const [lembrar, setLembrar] = useState(emailLembrado !== "");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -24,6 +26,14 @@ export default function Login() {
     try {
       const resposta = await api.post("/auth/login", { email, senha });
       entrar(resposta.data.token, resposta.data.usuario, lembrar);
+
+      // A senha nunca é guardada pelo sistema. Só o e-mail, e apenas se o lembre-me estiver marcado.
+      if (lembrar) {
+        localStorage.setItem("cc_email_lembrado", email);
+      } else {
+        localStorage.removeItem("cc_email_lembrado");
+      }
+
       navegar(resposta.data.usuario.tipo === "administrador" ? "/admin" : "/");
     } catch (erroRequisicao) {
       const semResposta = !(erroRequisicao as { response?: unknown }).response;
@@ -38,24 +48,17 @@ export default function Login() {
   }
 
   return (
-    <AuthDividido>
-      <h1>Entrar</h1>
-      <div className="cc-auth-sub">
-        Não tem conta?{" "}
-        <Link to="/cadastro" className="cc-link">
-          Crie uma agora
-        </Link>
-      </div>
-
-      {erro && <div className="cc-erro">{erro}</div>}
+    <AuthCartao titulo="Entrar">
+      {erro && <div className="alert alert-danger py-2">{erro}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div className="cc-campo">
-          <label className="cc-label">E-mail</label>
+        <div className="mb-3">
+          <label className="form-label">E-mail</label>
           <input
             type="email"
-            className="cc-input"
-            placeholder="example@gmail.com"
+            name="email"
+            autoComplete="username"
+            className="form-control"
             value={email}
             onChange={(evento) => setEmail(evento.target.value)}
             required
@@ -64,22 +67,37 @@ export default function Login() {
 
         <CampoSenha rotulo="Senha" valor={senha} aoMudar={setSenha} />
 
-        <div className="cc-lembrar">
-          <label>
-            <input type="checkbox" checked={lembrar} onChange={(evento) => setLembrar(evento.target.checked)} />
-            lembre-me
-          </label>
-          <Link to="/recuperar-senha" className="cc-link">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="form-check">
+            <input
+              id="lembrar"
+              type="checkbox"
+              className="form-check-input"
+              checked={lembrar}
+              onChange={(evento) => setLembrar(evento.target.checked)}
+            />
+            <label htmlFor="lembrar" className="form-check-label">
+              Lembre-me
+            </label>
+          </div>
+          <Link to="/recuperar-senha" className="text-success small">
             Esqueceu a senha?
           </Link>
         </div>
 
-        <button type="submit" className="cc-btn cc-btn-escuro cc-btn-bloco" disabled={carregando}>
+        <button type="submit" className="btn btn-success w-100" disabled={carregando}>
           {carregando ? "Entrando..." : "Entrar"}
         </button>
       </form>
 
       <BotaoGoogle aoErro={setErro} />
-    </AuthDividido>
+
+      <p className="text-center mt-3 mb-0">
+        Não tem conta?{" "}
+        <Link to="/cadastro" className="text-success">
+          Cadastre-se
+        </Link>
+      </p>
+    </AuthCartao>
   );
 }
