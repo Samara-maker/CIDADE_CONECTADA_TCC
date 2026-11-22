@@ -4,7 +4,7 @@ import api from "../services/api";
 import CitizenLayout from "../components/CitizenLayout";
 import Janela from "../components/Janela";
 import Selo from "../components/Selo";
-import logo from "../assets/imagens/logo.png";
+import logo from "../img/logo.png";
 import { Categoria } from "../utils/tipos";
 import { formatarData, ordenarCategorias, mensagemErro, protocoloCurto, tituloOcorrencia } from "../utils/format";
 

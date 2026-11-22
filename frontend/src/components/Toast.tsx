@@ -20,10 +20,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={mostrar}>
       {children}
-      <div className="cc-toasts">
+      <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 2000 }}>
         {avisos.map((aviso) => (
-          <div key={aviso.id} className={`cc-toast ${aviso.tipo === "erro" ? "cc-toast-erro" : ""}`}>
-            {aviso.texto}
+          <div key={aviso.id} className={`toast show align-items-center border-0 text-bg-${aviso.tipo === "erro" ? "danger" : "success"}`}>
+            <div className="toast-body">{aviso.texto}</div>
           </div>
         ))}
       </div>
