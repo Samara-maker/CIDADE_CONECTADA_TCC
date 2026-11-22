@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CitizenLayout from "../components/CitizenLayout";
-import Icon from "../components/Icon";
 import Selo from "../components/Selo";
 import MapView, { PontoMapa } from "../components/MapView";
 import { OcorrenciaPublica, Resumo } from "../utils/tipos";
-import { corCategoria, formatarDias, tituloOcorrencia } from "../utils/format";
+import { formatarDias, tituloOcorrencia } from "../utils/format";
 
 export default function Home() {
   const navegar = useNavigate();
@@ -45,82 +44,82 @@ export default function Home() {
     [ocorrencias]
   );
 
-  const ano = new Date().getFullYear();
+  const numeros = [
+    { rotulo: "Notificações abertas", valor: resumo?.abertas ?? "-", cor: "success" },
+    { rotulo: "Em andamento", valor: resumo?.em_resolucao ?? "-", cor: "warning" },
+    { rotulo: `Resolvidos (${new Date().getFullYear()})`, valor: resumo?.resolvidas ?? "-", cor: "success" },
+    { rotulo: "Tempo médio de resposta", valor: resumo ? formatarDias(resumo.tempo_medio_dias) : "-", cor: "primary" },
+  ];
 
   return (
     <CitizenLayout>
-      <div className="cc-conteudo">
-        {erro && <div className="cc-erro">{erro}</div>}
+      <div className="container py-4">
+        {erro && <div className="alert alert-danger">{erro}</div>}
 
-        <div className="cc-stats">
-          <div className="cc-stat verde">
-            <div className="cc-stat-num">{resumo?.abertas ?? "-"}</div>
-            <div className="cc-stat-rot">Notificações abertas</div>
-          </div>
-          <div className="cc-stat amarelo">
-            <div className="cc-stat-num">{resumo?.em_resolucao ?? "-"}</div>
-            <div className="cc-stat-rot">Em andamento</div>
-          </div>
-          <div className="cc-stat verde">
-            <div className="cc-stat-num">{resumo?.resolvidas ?? "-"}</div>
-            <div className="cc-stat-rot">Resolvidos ({ano})</div>
-          </div>
-          <div className="cc-stat azul">
-            <div className="cc-stat-num">{resumo ? formatarDias(resumo.tempo_medio_dias) : "-"}</div>
-            <div className="cc-stat-rot">Tempo médio de resposta</div>
-          </div>
+        <div className="row g-3 mb-4">
+          {numeros.map((item) => (
+            <div key={item.rotulo} className="col-6 col-md-3">
+              <div className={`card h-100 border-0 border-start border-4 border-${item.cor} shadow-sm`}>
+                <div className="card-body">
+                  <div className="h3 mb-0">{item.valor}</div>
+                  <small className="text-muted">{item.rotulo}</small>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="cc-divisao">
-          <div>
-            <h2 className="cc-secao">
-              <Icon nome="check" />
-              Notificações Recentes
-            </h2>
+        <div className="row g-4">
+          <div className="col-lg-6">
+            <h2 className="h4 mb-3">Notificações recentes</h2>
 
-            <div className="cc-filtros">
-              <button className={`cc-filtro ${categoria === "" ? "ativo" : ""}`} onClick={() => setCategoria("")}>
+            <div className="d-flex flex-wrap gap-2 mb-3">
+              <button
+                className={`btn btn-sm ${categoria === "" ? "btn-success" : "btn-outline-success"}`}
+                onClick={() => setCategoria("")}
+              >
                 Todos
               </button>
               {resumo?.por_categoria.map((item) => (
                 <button
                   key={item.id}
-                  className={`cc-filtro ${categoria === item.id ? "ativo" : ""}`}
+                  className={`btn btn-sm ${categoria === item.id ? "btn-success" : "btn-outline-success"}`}
                   onClick={() => setCategoria(item.id)}
                 >
-                  <Icon nome={item.icone} />
                   {item.nome.split(" ")[0]}
                 </button>
               ))}
             </div>
 
-            <div className="cc-lista">
-              {carregando && (
-                <div className="cc-vazio">
-                  <span className="cc-spinner" />
-                </div>
-              )}
-              {!carregando && recentes.length === 0 && <div className="cc-vazio">Nenhuma notificação registrada ainda.</div>}
+            {carregando && <div className="spinner-border text-success" />}
+            {!carregando && recentes.length === 0 && <p className="text-muted">Nenhuma notificação registrada ainda.</p>}
+
+            <div className="list-group">
               {recentes.map((item) => (
-                <div key={item.id} className="cc-item" onClick={() => navegar(`/ocorrencia/${item.id}`)}>
+                <button
+                  key={item.id}
+                  type="button"
+                  className="list-group-item list-group-item-action text-dark d-flex justify-content-between align-items-start gap-2 text-start"
+                  onClick={() => navegar(`/ocorrencia/${item.id}`)}
+                >
                   <div>
-                    <div className="cc-item-titulo">{tituloOcorrencia(item)}</div>
-                    <div className="cc-item-meta">
-                      {item.categoria.nome}
-                      <strong>Municipal</strong>
-                    </div>
+                    <div className="fw-semibold">{tituloOcorrencia(item)}</div>
+                    <small className="text-muted">{item.categoria.nome} · Municipal</small>
                   </div>
                   <Selo status={item.status} urgencia={item.nivel_urgencia} />
-                </div>
+                </button>
               ))}
             </div>
-            <Link to="/mapa" className="cc-mais">
-              Ver todas as notificações <Icon nome="seta" tamanho={13} />
+
+            <Link to="/mapa" className="d-inline-block mt-3 text-success">
+              Ver todas as notificações
             </Link>
           </div>
 
-          <div className="cc-mapa-quadro">
-            <MapView pontos={pontos} onAbrir={(id) => navegar(`/ocorrencia/${id}`)} zoom={13} />
+          <div className="col-lg-6">
+            <div className="border rounded overflow-hidden" style={{ height: 420 }}>
+              <MapView pontos={pontos} onAbrir={(id) => navegar(`/ocorrencia/${id}`)} zoom={13} />
+            </div>
           </div>
         </div>
       </div>
